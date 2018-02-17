@@ -20,25 +20,30 @@ typedef struct{
 	int y;
 }ty;
 ty sk,food;
-int a[25][25]={0},death=1;
-int turn=0,cx=0,cy=-1;
+int a[45][45]={0},death=1;
+int turn=100,cx=0,cy=-1;
 char input;
 int l=3; 
 void start()
 {
 	srand(time(NULL));
 	hidecursor();
+	printf("sleeptime（50-500）："); 
+	scanf("%d",&turn); 
 	sk.x=sk.y=8;
 	a[sk.y][sk.x]=l;
 	food.x=food.y=11;
 	a[food.y][food.x]=-1;
 	for(int i=1;i<=20;i++)
 	{
+		a[1][i]=-2;
+		a[40][i]=-2;		
+	}
+	for(int i=1;i<=40;i++)
+	{
 		a[i][1]=-2;
 		a[i][20]=-2;
-		a[1][i]=-2;
-		a[20][i]=-2;
-	}
+	}		
 }
 void in()
 {
@@ -70,41 +75,37 @@ void in()
 void out()
 {
 	gotoxy(0,0);
-	if(turn++>10)//蛇每10帧向既定方向位移一次 
+	Sleep(turn);//蛇每15帧向既定方向位移一次 
+	sk.x+=cx;
+	sk.y+=cy;
+	if(a[sk.x][sk.y]==-1)//吃到了
 	{
-		turn=0;
-		sk.x+=cx;
-		sk.y+=cy;
-		
-
-		if(a[sk.x][sk.y]==-1)//吃到了 
+		l++;
+		food.x=rand()%38+2;
+		food.y=rand()%18+2;
+		while(a[food.x][food.y]>0)
 		{
-			l++;
-			food.x=rand()%18+2;
+			food.x=rand()%38+2;
 			food.y=rand()%18+2;
-			while(a[food.x][food.y]>0)
-			{
-				food.x=rand()%18+2;
-				food.y=rand()%18+2;
-			}
-			a[food.x][food.y]=-1;
 		}
-		else if(a[sk.x][sk.y]>0||a[sk.x][sk.y]==-2)//撞死了 
-		{
-			death=0;
-		}
-		for(int i=1;i<=20;i++)//利用延迟消除形成蛇身 
-		{
-			for(int j=1;j<=20;j++)
-			{
-				if(a[j][i]>0)a[j][i]--;
-			}
-		}
-		a[sk.x][sk.y]=l;
+		a[food.x][food.y]=-1;
 	}
+	else if(a[sk.x][sk.y]>0||a[sk.x][sk.y]==-2)//撞死了 
+	{
+		death=0;
+	}
+	for(int i=1;i<=20;i++)//利用延迟消除形成蛇身 
+	{
+		for(int j=1;j<=40;j++)
+		{
+			if(a[j][i]>0)a[j][i]--;
+		}
+	}
+	a[sk.x][sk.y]=l;
+	
 	for(int i=1;i<=21;i++)
 	{
-		for(int j=1;j<=21;j++)
+		for(int j=1;j<=41;j++)
 		{
 			if(a[j][i]==0)
 				printf(" ");
@@ -117,6 +118,7 @@ void out()
 		}
 		printf("\n");
 	}
+	printf("longth:%d",l);
 }
 void finish()
 {
