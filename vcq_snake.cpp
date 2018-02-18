@@ -23,13 +23,22 @@ ty sk,food;
 int a[45][45]={0},death=1;
 int turn=100,cx=0,cy=-1;
 char input;
-int l=3; 
+int l=3,s=0,mode; 
 void start()
 {
 	srand(time(NULL));
 	hidecursor();
-	printf("sleeptime（50-500）："); 
+	printf("\n输入 1 或 0 来选择\"经典模式\"或\"牢笼模式\"");
+	scanf("%d",&mode) ;
+	printf("位移间隔（50-500毫秒）："); 
 	scanf("%d",&turn); 
+	system("cls");
+	death=1;
+	l=3;
+	s=0;
+	for(int i=1;i<=20;i++)//利用延迟消除形成蛇身 
+		for(int j=1;j<=40;j++)
+			a[j][i]=0;
 	sk.x=sk.y=8;
 	a[sk.y][sk.x]=l;
 	food.x=food.y=11;
@@ -47,6 +56,7 @@ void start()
 }
 void in()
 {
+	Sleep(turn);//蛇每15帧向既定方向位移一次 
 	if(kbhit())
 	{
 		input=getch();
@@ -72,15 +82,14 @@ void in()
 		}
 	}
 }
-void out()
+
+void ML()
 {
-	gotoxy(0,0);
-	Sleep(turn);//蛇每15帧向既定方向位移一次 
-	sk.x+=cx;
-	sk.y+=cy;
+	l=1000;
+	s++;
 	if(a[sk.x][sk.y]==-1)//吃到了
 	{
-		l++;
+		s+=50;
 		food.x=rand()%38+2;
 		food.y=rand()%18+2;
 		while(a[food.x][food.y]>0)
@@ -90,9 +99,20 @@ void out()
 		}
 		a[food.x][food.y]=-1;
 	}
-	else if(a[sk.x][sk.y]>0||a[sk.x][sk.y]==-2)//撞死了 
+}
+void MJ()
+{
+	if(a[sk.x][sk.y]==-1)//吃到了
 	{
-		death=0;
+		l+=1;
+		food.x=rand()%38+2;
+		food.y=rand()%18+2;
+		while(a[food.x][food.y]>0)
+		{
+			food.x=rand()%38+2;
+			food.y=rand()%18+2;
+		}
+		a[food.x][food.y]=-1;
 	}
 	for(int i=1;i<=20;i++)//利用延迟消除形成蛇身 
 	{
@@ -101,8 +121,22 @@ void out()
 			if(a[j][i]>0)a[j][i]--;
 		}
 	}
-	a[sk.x][sk.y]=l;
+} 
+void out()
+{
+	sk.x+=cx;
+	sk.y+=cy;
+	if(mode)
+		MJ();
+	else 
+		ML();
 	
+	gotoxy(0,0);
+	if(a[sk.x][sk.y]>0||a[sk.x][sk.y]==-2)//撞死了 
+	{
+		death=0;
+	}
+	a[sk.x][sk.y]=l;
 	for(int i=1;i<=21;i++)
 	{
 		for(int j=1;j<=41;j++)
@@ -118,19 +152,18 @@ void out()
 		}
 		printf("\n");
 	}
-	printf("longth:%d",l);
-}
-void finish()
-{
-	
+	printf("得分:%d",s);
 }
 int main()
 {
-	start();
-	while(death)
+	while(1)
 	{
-		in();
-		out();
+		start();
+		while(death)
+		{
+			in();
+			out();
+		}
 	}
-	finish();
+	
 } 
